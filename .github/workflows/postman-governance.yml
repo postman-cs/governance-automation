@@ -6,12 +6,12 @@ on:
       - main
       - 'feature/**'
     paths:
-      - 'api-specs/**'
+      - 'specs/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'api-specs/**'
+      - 'specs/**'
   workflow_dispatch:
     inputs:
       governance_threshold:

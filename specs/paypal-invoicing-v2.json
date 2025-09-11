@@ -13,7 +13,7 @@
     },
     {
       "url": "https://api-m.paypal.com",
-      "description": "PayPal Live Environment"
+      "description": "PayPal Production Environment"
     }
   ],
   "tags": [
