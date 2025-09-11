@@ -1587,11 +1587,15 @@ async function main() {
             describe: 'Output HTML dashboard to file',
             type: 'string'
         })
-        .option('json', {
-            alias: 'j',
-            describe: 'Output raw JSON instead of dashboard',
-            type: 'boolean',
-            default: false
+        .option('json-output', {
+            describe: 'JSON report output file name',
+            type: 'string',
+            default: process.env.JSON_OUTPUT_FILE || 'governance-report.json'
+        })
+        .option('html-output', {
+            describe: 'HTML dashboard output file name', 
+            type: 'string',
+            default: process.env.HTML_OUTPUT_FILE || 'governance-dashboard.html'
         })
         .help('help')
         .alias('help', 'h')
@@ -1605,21 +1609,16 @@ async function main() {
 
     const scorer = new GovernanceScorer(apiKey);
     
-    // Check for OUTPUT_FILE environment variable and determine format from extension
-    let { dir: specDir, api: apiFile, threshold, output: outputFile, json: jsonOutput } = argv;
+    // Get output file names from arguments or environment
+    let { dir: specDir, api: apiFile, threshold, 'json-output': jsonOutputFile, 'html-output': htmlOutputFile, output: legacyOutput } = argv;
     
-    // If OUTPUT_FILE is set in environment and no --output specified, use it
-    if (process.env.OUTPUT_FILE && !outputFile) {
-        outputFile = process.env.OUTPUT_FILE;
-        // Auto-detect format based on file extension
-        const ext = require('path').extname(outputFile).toLowerCase();
-        if (ext === '.json') {
-            jsonOutput = true;
-        } else if (ext === '.html' || ext === '.htm') {
-            jsonOutput = false;
-        }
-        console.log(`Using OUTPUT_FILE from environment: ${outputFile} (format: ${jsonOutput ? 'JSON' : 'HTML'})`);
+    // Support legacy --output parameter for backward compatibility
+    if (legacyOutput && !htmlOutputFile) {
+        htmlOutputFile = legacyOutput;
+        console.log(`Using legacy --output parameter: ${htmlOutputFile}`);
     }
+    
+    console.log(`Output files: JSON=${jsonOutputFile}, HTML=${htmlOutputFile}`);
 
     try {
         let report;
@@ -1657,19 +1656,15 @@ async function main() {
             });
         }
 
-        // Output results
-        if (jsonOutput) {
-            console.log(JSON.stringify(report, null, 2));
-        } else {            
-            const dashboard = scorer.generateDashboard(report);
-            
-            if (outputFile) {
-                fs.writeFileSync(outputFile, dashboard);
-                console.log(`Multi-API governance report saved to ${outputFile}`);
-            } else {
-                console.log(dashboard);
-            }
-        }
+        // Always generate both JSON report and HTML dashboard
+        console.log(`Generating JSON report to ${jsonOutputFile}...`);
+        fs.writeFileSync(jsonOutputFile, JSON.stringify(report, null, 2));
+        console.log(`JSON report saved to ${jsonOutputFile}`);
+
+        console.log(`Generating HTML dashboard to ${htmlOutputFile}...`);
+        const dashboard = scorer.generateDashboard(report);
+        fs.writeFileSync(htmlOutputFile, dashboard);
+        console.log(`Dashboard saved to ${htmlOutputFile}`);
 
         // Exit with error if any APIs fail threshold
         if (failing.length > 0) {

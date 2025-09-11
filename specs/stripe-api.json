@@ -10,7 +10,7 @@
                 "$ref": "#/components/schemas/account_business_profile"
               }
             ],
-            "description": "Business information about the account.",
+            "description": "Business information about an account.",
             "nullable": true
           },
           "business_type": {

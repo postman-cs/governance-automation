@@ -93,31 +93,17 @@ jobs:
           export POSTMAN_API_KEY=${{ secrets.POSTMAN_API_KEY }}
           
           if [ "${{ env.GOVERNANCE_MODE }}" = "apis" ]; then
-            echo "Running governance check on APIs..."
-            # Generate API governance report (JSON for processing)
+            echo "Running governance check on APIs (generating both JSON and HTML)..."
+            # Generate both API governance report and dashboard in single run
             node scripts/postman_governance-api.js \
               --workspace ${{ secrets.WORKSPACE_ID }} \
-              --threshold ${{ env.GOVERNANCE_THRESHOLD }} \
-              --json > governance-report.json
-            
-            # Generate HTML dashboard
-            node scripts/postman_governance-api.js \
-              --workspace ${{ secrets.WORKSPACE_ID }} \
-              --threshold ${{ env.GOVERNANCE_THRESHOLD }} \
-              --output governance-dashboard.html
+              --threshold ${{ env.GOVERNANCE_THRESHOLD }}
           else
-            echo "Running governance check on specs..."
-            # Generate spec governance report (JSON for processing)
+            echo "Running governance check on specs (generating both JSON and HTML)..."
+            # Generate both spec governance report and dashboard in single run
             node scripts/postman_governance-spec.js \
               --workspace ${{ secrets.WORKSPACE_ID }} \
-              --threshold ${{ env.GOVERNANCE_THRESHOLD }} \
-              --json > governance-report.json
-            
-            # Generate HTML dashboard
-            node scripts/postman_governance-spec.js \
-              --workspace ${{ secrets.WORKSPACE_ID }} \
-              --threshold ${{ env.GOVERNANCE_THRESHOLD }} \
-              --output governance-dashboard.html
+              --threshold ${{ env.GOVERNANCE_THRESHOLD }}
           fi
           
           # Check for failures
