@@ -170,7 +170,7 @@ jobs:
             export SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
             export BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             export BUILD_REQUESTEDFOR="${{ github.actor }}"
-            node scripts/slack_notifier.js --batch governance-report.json
+            node scripts/slack_notifier.js --batch governance-report.json --workspace ${{ secrets.WORKSPACE_ID }}
           else
             echo "SLACK_WEBHOOK_URL not configured, skipping Slack notification"
           fi
@@ -183,7 +183,7 @@ jobs:
             export SLACK_WEBHOOK_URL=${{ secrets.SLACK_WORKFLOW_URL }}
             export BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             export BUILD_REQUESTEDFOR="${{ github.actor }}"
-            node scripts/slack_notifier.js --workflow --batch governance-report.json
+            node scripts/slack_notifier.js --workflow --batch governance-report.json --workspace ${{ secrets.WORKSPACE_ID }}
           else
             echo "SLACK_WORKFLOW_URL not configured, skipping Slack workflow notification"
           fi

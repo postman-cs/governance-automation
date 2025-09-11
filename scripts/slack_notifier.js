@@ -11,6 +11,31 @@ const { hideBin } = require('yargs/helpers');
 class SlackNotifier {
     constructor(webhookUrl) {
         this.webhookUrl = webhookUrl;
+        this.baseUrl = 'https://api.getpostman.com';
+        this.apiKey = process.env.POSTMAN_API_KEY;
+    }
+
+    /**
+     * Get authenticated user info to extract team domain
+     */
+    async getUserInfo() {
+        try {
+            const response = await fetch(`${this.baseUrl}/me`, {
+                headers: {
+                    'X-API-Key': this.apiKey
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get user info: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.user;
+        } catch (error) {
+            console.warn(`Could not get user info: ${error.message}`);
+            return null;
+        }
     }
 
     /**
@@ -150,7 +175,7 @@ class SlackNotifier {
     /**
      * Send batch summary notification
      */
-    async sendBatchSummary(results, useWorkflow = false) {
+    async sendBatchSummary(results, workspaceId = null, useWorkflow = false) {
         const totalApis = results.length;
         const passedApis = results.filter(r => r.score >= 70).length;
         const failedApis = totalApis - passedApis;
@@ -163,6 +188,18 @@ class SlackNotifier {
                 return `${emoji} ${api.name}: ${api.score}/100`;
             }).join('\n');
 
+            // Get team domain for Postman workspace link
+            let postmanWorkspaceLink = 'https://app.getpostman.com';
+            if (workspaceId && this.apiKey) {
+                try {
+                    const userInfo = await this.getUserInfo();
+                    const teamDomain = userInfo?.teamDomain || 'postman';
+                    postmanWorkspaceLink = `https://${teamDomain}.postman.co/workspace/${workspaceId}`;
+                } catch (error) {
+                    console.warn('Failed to get Postman workspace link:', error.message);
+                }
+            }
+
             const payload = {
                 total_apis: totalApis.toString(),
                 passed_apis: passedApis.toString(),
@@ -170,6 +207,8 @@ class SlackNotifier {
                 average_score: avgScore.toFixed(1),
                 api_details: apiDetails,
                 summary: `📊 Batch Report: ${totalApis} APIs processed, ${passedApis} passed, ${failedApis} failed (Avg: ${avgScore.toFixed(1)})`,
+                workspace_link: postmanWorkspaceLink,
+                build_link: process.env.BUILD_URL || process.env.SYSTEM_TEAMFOUNDATIONCOLLECTIONURI || 'https://dev.azure.com',
                 timestamp: new Date().toLocaleString()
             };
 
@@ -359,6 +398,10 @@ async function main() {
             describe: 'Use Slack Workflow format instead of Block Kit',
             type: 'boolean'
         })
+        .option('workspace', {
+            describe: 'Postman workspace ID for workspace links',
+            type: 'string'
+        })
         .example('$0 --webhook https://... --api "Tracking API" --score 85 --violations 3', 'Single API notification')
         .example('$0 --webhook https://... --batch results.json', 'Batch summary')
         .example('$0 --webhook https://... --message "Deployment complete!"', 'Simple message')
@@ -385,7 +428,8 @@ async function main() {
         
         try {
             const results = JSON.parse(fs.readFileSync(argv.batch, 'utf8'));
-            const success = await notifier.sendBatchSummary(results, argv.workflow);
+            const workspaceId = argv.workspace || process.env.WORKSPACE_ID;
+            const success = await notifier.sendBatchSummary(results, workspaceId, argv.workflow);
             
             if (success) {
                 console.log(`Batch summary sent successfully${argv.workflow ? ' (workflow)' : ' (block kit)'}`);
