@@ -117,7 +117,10 @@ If you prefer not to run live during client calls:
 Each API gets scored out of 100 with detailed breakdowns of violations, pass/fail status based on configurable thresholds, and click-through buttons to Postman.
 
 ### The Pipeline in Action
-Automated quality gates in the pipelines fail builds when APIs don't meet standards, real-time notifications to Slack/Teams, and executive reporting suitable for management review.
+- Push a new spec file to the repo or push a change? The pipeline utomatically creates/updates the spec in Postman and syncs the related collections.
+- Push a spec that doesn't meet the standard? The automated quality gates in the pipelines can fail the build when APIs don't meet standards.
+- Real-time notifications are sent to Slack/Teams
+- Dashboards are generated as HTML or JSON for management to review.
 
 ## Customize the Demo for Your Clients
 
