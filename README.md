@@ -93,7 +93,7 @@ Now you need to set up the actual automation pipeline:
 **Azure DevOps**
 1. In your Azure DevOps project, go to **Pipelines** → **Create Pipeline**
 2. Choose "Azure Repos Git" and select your repository
-3. Select "Existing Azure Pipelines YAML file"
+3. On the "Configure" tab (showing Node.js, Express, etc. templates), scroll down and select **"Existing Azure Pipelines YAML file"**
 4. Choose the path: `/.azure/pipelines/postman-governance.yml`
 5. Click "Continue" → "Save and run"
 
