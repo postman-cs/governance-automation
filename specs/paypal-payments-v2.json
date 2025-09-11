@@ -9,7 +9,7 @@
   "servers": [
     {
       "url": "https://api-m.sandbox.paypal.com",
-      "description": "PayPal Sandbox Environment"
+      "description": "PayPal Sandbox Environments"
     },
     {
       "url": "https://api-m.paypal.com",
