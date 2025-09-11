@@ -30,16 +30,13 @@ governance-demo/
 ├── governance-dashboard.html        # Governance dashboard (auto-generated)
 ├── SETUP-***.md                     # Configuration guides for various platforms
 ├── .env.example                     # Copy, rename ".env", and fill in your config for local demoing
+├── TECHNICAL.md                     # Technical documentation
 └── README.md                        # This documentation
 ```
 
 ---
 
-## Turn Weeks of API Reviews Into 20 Minutes of Automated Quality
-
-Show enterprise clients how to eliminate their biggest API headache. Just fork this repo and answer 3 simple questions to run a live demo.
-
-## Why This Matters to Your Clients
+## Why This Matters
 
 Every day, development teams wait weeks for API approvals while quality standards vary between reviewers. By the time issues surface, they're in production. This demo changes that conversation.
 
@@ -106,7 +103,7 @@ Download and show the governance dashboard. "In under 5 minutes, we have a compl
 **The Integration Point (1 minute)**
 "This works with whatever CI/CD pipeline you're already using. Teams get immediate feedback, management gets dashboards, and nothing reaches production without meeting your standards."
 
-### Option 2: Pre-Run Demo (Safe Approach)
+### Option 2: Pre-Run the Demo
 
 If you prefer not to run live during client calls:
 1. Run the demo beforehand
@@ -114,27 +111,21 @@ If you prefer not to run live during client calls:
 3. Show the pre-generated results during your presentation
 4. Walk through the pipeline logs to demonstrate the automation
 
-## What Your Clients Will See
+## What They'll See
 
 ### The Governance Dashboard
-Each API gets scored out of 100 with detailed breakdowns of violations, pass/fail status based on configurable thresholds, and click-through reports for specific issues.
-
-### Expected Results
-- GitHub API: ~85/100 (well-documented)
-- PayPal APIs: ~75-80/100 (good structure)
-- Stripe API: ~90/100 (excellent documentation)
-- Sample APIs: ~70-75/100 (needs improvement)
+Each API gets scored out of 100 with detailed breakdowns of violations, pass/fail status based on configurable thresholds, and click-through buttons to Postman.
 
 ### The Pipeline in Action
-Automated quality gates that fail builds when APIs don't meet standards, real-time notifications to Slack/Teams, and executive reporting suitable for management review.
+Automated quality gates in the pipelines fail builds when APIs don't meet standards, real-time notifications to Slack/Teams, and executive reporting suitable for management review.
 
 ## Customize the Demo for Your Clients
 
 ### Use Their Actual APIs
-Save your client's OpenAPI/Swagger files in the `specs/` folder and run the demo with their real data. This shows exactly how their APIs score against industry standards.
+Save your client's specifications files in the `specs/` folder and run the demo with their real data. This shows exactly how their APIs score against industry standards.
 
 ### Adjust Quality Standards
-Edit the governance threshold in `.github/workflows/postman-governance.yml` or `.azure/pipelines/postman-governance.yml`. Higher thresholds (80-90) show stricter governance, lower ones (50-60) show a more lenient approach.
+Edit the governance threshold in `.github/workflows/postman-governance.yml` or `.azure/pipelines/postman-governance.yml`. Higher thresholds (80-90) show stricter governance, lower ones (50-60) show a more lenient approach. For you can also adjust the weights for ERROR, WARN, ISSUE, and HINT statuses in the postman_governance-***.js files (I should probably abstract this out into variables at some point)
 
 ### Tailor Governance Rules
 Governance rules are configured directly in Postman. Go to Home > API Governance, create or modify governance rules, and apply them to specific workspace groups. This lets you show clients how governance standards can be customized per team or API type - all managed centrally in Postman.
