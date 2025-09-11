@@ -8,8 +8,6 @@
 
 All components tested end-to-end with real data.
 
-**Public Workspace**: https://www.postman.com/r00tfs/governance-demo/overview
-
 ## Project Structure
 
 ```
