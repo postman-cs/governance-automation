@@ -124,7 +124,7 @@
             "nullable": true
           },
           "id": {
-            "description": "Unique identifier for the object.",
+            "description": "Unique identifier for an object.",
             "maxLength": 5000,
             "type": "string"
           },
