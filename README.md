@@ -1,6 +1,6 @@
 # API Governance Demo
 
-![Banner](banner.jpg)
+![Banner](banner.gif)
 
 ## Overview
 
