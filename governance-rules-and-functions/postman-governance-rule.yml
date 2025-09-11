@@ -1,0 +1,169 @@
+rules:
+  # === API INFORMATION ===
+  api-title-required:
+    description: "API must have a title"
+    message: "API specification must include a title in the info section"
+    severity: warn
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.info
+    then:
+      - field: title
+        function: truthy
+
+  api-description-provided:
+    description: "API should have a description"
+    message: "API should include a description in the info section"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.info
+    then:
+      - field: description
+        function: truthy
+
+  api-version-required:
+    description: "API must have a version"
+    message: "API specification must include a version in the info section"
+    severity: warn
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.info
+    then:
+      - field: version
+        function: truthy
+
+  # === OPERATIONS DOCUMENTATION ===
+  operation-summary-provided:
+    description: "Operations should have summaries"
+    message: "Operation should include a summary for better documentation"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths.*[get,post,put,patch,delete,head,options,trace]
+    then:
+      - field: summary
+        function: truthy
+
+  # === RESPONSES ===
+  success-response-required:
+    description: "Operations should have success responses"
+    message: "Operation should define at least one success response (2xx)"
+    severity: warn
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths.*[get,post,put,patch,delete,head,options,trace].responses
+    then:
+      - function: schema
+        functionOptions:
+          schema:
+            anyOf:
+              - required: ["200"]
+              - required: ["201"]
+              - required: ["202"]
+              - required: ["204"]
+
+  # === PARAMETERS ===
+  parameter-description-provided:
+    description: "Parameters should have descriptions"
+    message: "Parameter '{{property}}' should include a description"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths..parameters[*]
+      - $.components.parameters.*
+    then:
+      - field: description
+        function: truthy
+
+  # === TAGS ===
+  operation-tags-provided:
+    description: "Operations should have tags"
+    message: "Operation should include tags for better organization"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths.*[get,post,put,patch,delete,head,options,trace]
+    then:
+      - field: tags
+        function: truthy
+
+  # === SERVERS (OpenAPI 3.x only) ===
+  servers-provided:
+    description: "API should define servers"
+    message: "API should include server information"
+    severity: info
+    formats:
+      - oas3
+    given:
+      - $
+    then:
+      - field: servers
+        function: truthy
+
+  # === SCHEMA COMPLEXITY (Custom Function) ===
+  schema_complexity_check:
+    description: "Very complex schemas should use $ref for reusability"
+    message: "Complex schemas should use $ref to promote reusability"
+    severity: hint
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths..schema
+      - $.components.schemas.*
+      - $.definitions.*
+    then:
+      - function: schema_complexity_check
+
+  # === SECURITY FLEXIBILITY (Custom Function) ===
+  flexible_security_requirement:
+    description: "API should have reasonable security coverage"
+    message: "API should define security schemes and apply them appropriately"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $
+    then:
+      - function: flex_security_check
+
+  # === SMART ERROR RESPONSES (Custom Function) ===
+  smart_error_responses:
+    description: "Operations should have appropriate error responses"
+    message: "Operation should define relevant error responses for the HTTP method"
+    severity: info
+    formats:
+      - oas2
+      - oas3
+    given:
+      - $.paths.*[get,post,put,patch,delete].responses
+    then:
+      - function: smart_error_responses
+
+  # === CONTENT TYPE VALIDATION (Custom Function) ===
+  intelligent_content_types:
+    description: "Request bodies should specify appropriate content types"
+    message: "Operation should define reasonable content types for request body"
+    severity: info
+    formats:
+      - oas3
+    given:
+      - $.paths.*[post,put,patch].requestBody.content
+    then:
+      - function: content_type_validator

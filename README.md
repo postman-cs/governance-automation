@@ -1,0 +1,192 @@
+# API Governance Demo
+
+![Banner](banner.jpg)
+
+## Overview
+
+**Reference implementation** of an automated API governance and dashboarding system that integrates **Postman Spec Hub**, **API Builder**, **CI/CD pipelines** (Azure DevOps or GitHub Actions), **Slack notifications** and **Microsoft Teams notifications**. Demonstrates transformation of API governance from "A week of review" to "automatic quality gate in 20 minutes" using real Public API specifications from various industries.
+
+All components tested end-to-end with real data.
+
+**Public Workspace**: https://www.postman.com/r00tfs/governance-demo/overview
+
+## Project Structure
+
+```
+governance-demo/
+├── .azure/                          # Azure DevOps Pipeline yaml
+├── .github/                         # Github Actions Workflow yaml
+├── governance-rules-and-functions/  # Custom governance rules and functions
+│   ├── ****.js                      # Custom functions to be used in your demo team
+│   └── postman-governance-rule.yml  # Custom governance rules for your demo team
+├── scripts/                         # Scripts used by automation
+│   ├── postman_governance-local.js  # Lint against local spec files for demo purposes
+│   ├── postman_governance-spec.js   # Lint against Postman Spec Hub (default mode)
+│   ├── postman_governance-api.js    # Lint against Postman APIs
+│   ├── sync_specs_to_postman.js     # Sync local or repo specs to Postman Spec Hub
+│   ├── sync_apis_to_postman.js      # Sync local or repo specs to Postman APIs
+│   └── [other scripts]              # Notification and utility scripts
+├── specs/                           # Real Public API specifications
+├── governance-dashboard.html        # Governance dashboard (auto-generated)
+├── SETUP-***.md                     # Configuration guides for various platforms
+├── .env.example                     # Copy, rename ".env", and fill in your config for local demoing
+└── README.md                        # This documentation
+```
+
+---
+
+## Turn Weeks of API Reviews Into 20 Minutes of Automated Quality
+
+Show enterprise clients how to eliminate their biggest API headache. Just fork this repo and answer 3 simple questions to run a live demo.
+
+## Why This Matters to Your Clients
+
+Every day, development teams wait weeks for API approvals while quality standards vary between reviewers. By the time issues surface, they're in production. This demo changes that conversation.
+
+**What you'll show them:**
+- APIs automatically scored in real-time
+- Quality gates that prevent bad APIs from reaching production
+- Executive dashboards that surface quality metrics instantly
+- Integration with their existing CI/CD pipelines
+
+**The transformation:**
+- Before: 1-2 weeks of manual reviews, inconsistent standards, production issues
+- After: 20 minutes of automated scoring, consistent enforcement, issues caught early
+
+## Get Your Demo Running in 10 Minutes
+
+### Step 1: Get Your Postman Credentials
+
+First, grab your Postman API credentials:
+- Log into your Postman account
+- Go to https://go.postman.co/settings/me/api-keys
+- Click "Generate API Key" and copy it
+- Visit any workspace and copy the workspace ID from the URL
+
+The workspace ID looks like this in your browser:
+```
+https://app.getpostman.com/workspace/12345678-1234-1234-1234-123456789abc
+```
+Your ID is: `12345678-1234-1234-1234-123456789abc`
+
+### Step 2: Set Up Your Demo Repository
+
+**GitHub (Recommended)**
+1. Fork this repository to your GitHub account
+2. Go to Settings → Secrets and variables → Actions
+3. Add these secrets:
+   - `POSTMAN_API_KEY`: Your API key from Step 1
+   - `WORKSPACE_ID`: Your workspace ID
+
+**Azure DevOps Alternative**
+1. Create a new Azure DevOps project and import this repository
+2. Go to Pipelines → Library → + Variable group
+3. Create group named `postman-secrets` with the same credentials (mark API key as secret)
+
+### Step 3: Run Your First Demo
+
+Make any small change to a file in the `specs/` folder - add a comment, change a description, anything. Commit and push the change. Watch the magic happen in the Actions/Pipelines tab.
+
+## How to Demo This to Clients
+
+### Option 1: Live Demo During Your Call
+
+**The Setup (30 seconds)**
+"I'm going to show you how Postman transforms API governance. Here we have real API specifications from companies like PayPal, Stripe, and GitHub."
+
+**The Trigger (1 minute)**
+Make a visible change to one of the API specs. "I'll simulate a developer submitting a new API for review."
+
+**The Automation (3 minutes)**
+Navigate to Actions/Pipelines and watch it run. "Watch as Postman automatically scores these APIs using your governance standards."
+
+**The Results (2 minutes)**
+Download and show the governance dashboard. "In under 5 minutes, we have a complete governance report that took weeks before."
+
+**The Integration Point (1 minute)**
+"This works with whatever CI/CD pipeline you're already using. Teams get immediate feedback, management gets dashboards, and nothing reaches production without meeting your standards."
+
+### Option 2: Pre-Run Demo (Safe Approach)
+
+If you prefer not to run live during client calls:
+1. Run the demo beforehand
+2. Download the governance dashboard HTML file
+3. Show the pre-generated results during your presentation
+4. Walk through the pipeline logs to demonstrate the automation
+
+## What Your Clients Will See
+
+### The Governance Dashboard
+Each API gets scored out of 100 with detailed breakdowns of violations, pass/fail status based on configurable thresholds, and click-through reports for specific issues.
+
+### Expected Results
+- GitHub API: ~85/100 (well-documented)
+- PayPal APIs: ~75-80/100 (good structure)
+- Stripe API: ~90/100 (excellent documentation)
+- Sample APIs: ~70-75/100 (needs improvement)
+
+### The Pipeline in Action
+Automated quality gates that fail builds when APIs don't meet standards, real-time notifications to Slack/Teams, and executive reporting suitable for management review.
+
+## Customize the Demo for Your Clients
+
+### Use Their Actual APIs
+Save your client's OpenAPI/Swagger files in the `specs/` folder and run the demo with their real data. This shows exactly how their APIs score against industry standards.
+
+### Adjust Quality Standards
+Edit the governance threshold in `.github/workflows/postman-governance.yml` or `.azure/pipelines/postman-governance.yml`. Higher thresholds (80-90) show stricter governance, lower ones (50-60) show a more lenient approach.
+
+### Tailor Governance Rules
+Governance rules are configured directly in Postman. Go to Home > API Governance, create or modify governance rules, and apply them to specific workspace groups. This lets you show clients how governance standards can be customized per team or API type - all managed centrally in Postman.
+
+### Advanced: Specs mode or APIs Mode
+The system supports different modes (specs vs APIs) but defaults to the recommended specs mode. Most CSMs should stick with the default. For advanced demos, you can manually set "apis" mode in the variables on Azure/Github to show the APIs workflow.
+
+## Common Demo Questions
+
+**"Why are all my scores so low?"**
+You probably have too many rules set. The "All workspaces" group in the cs-demo instance is set with a pretty fair set of rules, so just use that. It should be 12 rules and 4 functions -- if there are any more or less, someone's messed with it. You can rebuild by deleting everything and re-adding the things in the "governance-rules-and-functions" folder.
+
+**"What if the pipeline fails during the demo?"**  
+Perfect! Say: "This is exactly how the quality gate works. In the real world, this API wouldn't make it to production until these issues are fixed."
+
+**"What if nothing runs?"**  
+Show pre-generated results instead: "The key point is that this entire process is automated and integrates with your existing tools."
+
+**"What if they ask technical questions you can't answer?"**  
+"That's a great technical question. Let me connect you with our solutions engineer who can dive deep into the implementation details."
+
+**"Can we add Slack/Teams notifications?"**  
+Absolutely! Create a webhook in your demo channel and add `SLACK_WEBHOOK_URL` or `TEAMS_WEBHOOK_URL` as secrets. Show real-time notifications during the demo.
+
+**"The pipeline isn't running"**  
+GitHub Actions might be disabled. Go to Settings → Actions → General → Allow all actions.
+
+**"Getting API key errors"**  
+Generate a fresh API key in Postman and update the secret. Make sure the secret name matches exactly.
+
+## ROI Discussion Points
+
+**Time Savings**: 95% reduction from 1-2 weeks to 20 minutes per API review
+
+**Quality Improvements**: Consistent automated enforcement vs. inconsistent human standards  
+
+**Developer Productivity**: Immediate feedback vs. long feedback loops and waiting
+
+**Compliance**: Automated audit trails vs. manual oversight challenges
+
+## Your Next Move
+
+1. Pick a client struggling with API quality or slow release cycles
+2. Set up this demo with their actual API specifications
+3. Show them the transformation from weeks to minutes
+4. Schedule the technical follow-up to discuss implementation
+
+**Additional Resources**
+- Public Workspace: https://www.postman.com/r00tfs/governance-demo/overview
+- Setup Guides: See SETUP-*.md files in this repository
+- Postman Documentation: https://learning.postman.com/docs/api-governance/
+
+---
+
+*Built for CSMs who want to show real value. Questions? Just ask!*

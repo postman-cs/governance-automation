@@ -1,0 +1,30 @@
+{
+  "name": "governance-demo",
+  "version": "1.0.0",
+  "description": "API Governance Demo with Postman Integration",
+  "main": "scripts/postman_governance-spec.js",
+  "scripts": {
+    "test": "node scripts/postman_governance-spec.js --help",
+    "score": "node scripts/postman_governance-spec.js --workspace ${WORKSPACE_ID} --json",
+    "notify": "node scripts/teams_notifier.js",
+    "lint": "echo \"Use Postman workspace governance rules - see README for setup\"",
+    "dashboard": "node scripts/postman_governance-spec.js --workspace ${WORKSPACE_ID} --output governance-dashboard.html"
+  },
+  "keywords": [
+    "api",
+    "governance",
+    "postman",
+    "quality",
+    "automation"
+  ],
+  "author": "Governance Team",
+  "license": "MIT",
+  "dependencies": {
+    "@stoplight/spectral-cli": "^6.11.0",
+    "dotenv": "^17.2.2",
+    "yargs": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
