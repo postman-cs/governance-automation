@@ -80,7 +80,26 @@ Your ID is: `12345678-1234-1234-1234-123456789abc`
 2. Go to Pipelines → Library → + Variable group
 3. Create group named `postman-secrets` with the same credentials (mark API key as secret)
 
-### Step 3: Run Your First Demo
+### Step 3: Create Your Pipeline/Workflow
+
+Now you need to set up the actual automation pipeline:
+
+**GitHub Actions**
+1. In your forked repository, go to the **Actions** tab
+2. If Actions are disabled, click "I understand my workflows, go ahead and enable them"
+3. You should see "Postman Governance" workflow listed
+4. If you don't see any workflows, click "New workflow" → "Set up a workflow yourself" and copy the content from `.github/workflows/postman-governance.yml` in your repo
+
+**Azure DevOps**
+1. In your Azure DevOps project, go to **Pipelines** → **Create Pipeline**
+2. Choose "Azure Repos Git" and select your repository
+3. Select "Existing Azure Pipelines YAML file"
+4. Choose the path: `/.azure/pipelines/postman-governance.yml`
+5. Click "Continue" → "Save and run"
+
+The pipeline should now be ready to trigger when you make changes.
+
+### Step 4: Run Your First Demo
 
 Make any small change to a file in the `specs/` folder - add a comment, change a description, anything. Commit and push the change. Watch the magic happen in the Actions/Pipelines tab.
 
