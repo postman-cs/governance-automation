@@ -75,8 +75,11 @@ jobs:
           
       - name: Install jq for JSON processing
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y jq
+          # Fast binary download (no apt-get needed)
+          wget -O jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64
+          chmod +x jq
+          sudo mv jq /usr/local/bin/
+          jq --version
           
       - name: Login to Postman
         run: |

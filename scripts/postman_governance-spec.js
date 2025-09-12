@@ -135,6 +135,21 @@ class GovernanceScorer {
                 console.warn(`Temp file approach failed for Spec ${specId}: ${error.message}`);
             }
             
+            // Check if spec is corrupted/malformed and cannot be linted
+            if (stdout.includes('Unable to lint')) {
+                // Clean ANSI color codes from error message for better readability
+                const cleanError = stdout.replace(/\x1b\[[0-9;]*m/g, '').trim();
+                return { 
+                    score: 0, 
+                    error: `Spec is malformed and cannot be linted: ${cleanError}`,
+                    issues: [],
+                    violationCount: 0,
+                    summary: { total: 0, error: 0, warn: 0, info: 0, hint: 0 },
+                    api: `Spec-${specId}`,
+                    timestamp: new Date().toISOString()
+                };
+            }
+            
             // Check if spec not found or other error
             if (stderr || (stdout.includes('Error:') && !stdout.includes('problems'))) {
                 return { score: 0, error: `Failed to lint spec: ${stderr || stdout}` };

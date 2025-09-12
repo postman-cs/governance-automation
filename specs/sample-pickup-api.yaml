@@ -26,7 +26,7 @@ servers:
 paths:
   "/shipments/{version}/pickup/{pickuptype}":
     post:
-      description: Using the POST operation of the pickuptype endpoint within the Pickup API, users can request rates for UPS on-demand package pickup. The endpoint allows users to specify pickup details like address, date/time, and other options, and returns pricing information for booking that pickup.
+      description: Using the POST operation of the pickuptype endpoint within the Pickup API, users can request rates for UPS on-demand package pickup. This endpoint allows users to specify pickup details like address, date/time, and other options, and returns pricing information for booking that pickup.
       summary: Pickup Rate
       tags:
         - Pickup
