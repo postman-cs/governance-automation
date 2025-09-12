@@ -147,6 +147,9 @@ Save your client's specifications files in the `specs/` folder and run the demo 
 ### Adjust Quality Standards
 Edit the governance threshold in `.github/workflows/postman-governance.yml` or `.azure/pipelines/postman-governance.yml`. Higher thresholds (80-90) show stricter governance, lower ones (50-60) show a more lenient approach. For you can also adjust the weights for ERROR, WARN, ISSUE, and HINT statuses in the postman_governance-***.js files (I should probably abstract this out into variables at some point)
 
+### Control Pipeline Behavior
+Add `FAIL_ON_GOVERNANCE_VIOLATIONS=false` as a repository variable to make pipelines succeed even when APIs don't meet standards. The dashboard still shows all violations - perfect for showing governance data without intimidating red X's in your demo.
+
 ### Tailor Governance Rules
 Governance rules are configured directly in Postman. Go to Home > API Governance, create or modify governance rules, and apply them to specific workspace groups. This lets you show clients how governance standards can be customized per team or API type - all managed centrally in Postman.
 

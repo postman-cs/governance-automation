@@ -483,6 +483,67 @@ try {
 - Individual notification failures are logged but don't fail build
 - Quality gate failures are the ONLY pipeline blockers
 
+## Governance Enforcement Modes
+
+The system supports configurable enforcement behavior via `FAIL_ON_GOVERNANCE_VIOLATIONS`:
+
+### Strict Enforcement Mode (`FAIL_ON_GOVERNANCE_VIOLATIONS=true`)
+**Behavior**: Pipeline fails when APIs don't meet governance threshold
+**Use Cases**: 
+- Production deployments requiring quality gates
+- Mandatory governance compliance environments
+- CI/CD pipelines that must block poor quality APIs
+
+**Workflow Result**:
+```bash
+# When violations found:
+[FAILED] 3 APIs do not meet governance threshold of 70
+- API Name: 45/100
+exit 1  # Pipeline fails
+```
+
+### Monitoring Mode (`FAIL_ON_GOVERNANCE_VIOLATIONS=false`)
+**Behavior**: Pipeline continues with warnings when APIs don't meet threshold
+**Use Cases**:
+- Development environments with governance monitoring
+- Quality assessment without blocking deployments  
+- Reporting dashboards for management visibility
+- Environments transitioning to governance compliance
+
+**Workflow Result**:
+```bash
+# When violations found:
+[WARNING] 3 APIs do not meet governance threshold of 70 (continuing due to FAIL_ON_GOVERNANCE_VIOLATIONS=false)
+- API Name: 45/100
+# Pipeline continues, dashboard deploys with violation details
+```
+
+### Configuration Methods
+
+**Environment Variables** (.env):
+```bash
+FAIL_ON_GOVERNANCE_VIOLATIONS=true   # Strict mode
+FAIL_ON_GOVERNANCE_VIOLATIONS=false  # Monitoring mode
+```
+
+**GitHub Actions** (Repository Variables):
+```bash
+# Add to Settings → Secrets and variables → Actions → Variables
+FAIL_ON_GOVERNANCE_VIOLATIONS=false  # Uses repository variable
+# Fallback: defaults to 'true' if not set
+```
+
+**Azure DevOps** (Pipeline Variables):
+```yaml
+variables:
+- name: FAIL_ON_GOVERNANCE_VIOLATIONS
+  value: 'false'  # Set in pipeline or variable group
+```
+
+**Manual Override** (Workflow Dispatch):
+- Manual triggers always use repository variable or default ('true')
+- Cannot override enforcement mode via manual triggers
+
 ## Environment Configuration
 
 ### Development (.env)
@@ -494,6 +555,7 @@ WORKSPACE_ID=your-workspace-id
 # Optional features  
 GOVERNANCE_MODE=specs              # or 'apis'
 GOVERNANCE_THRESHOLD=70            # 0-100 
+FAIL_ON_GOVERNANCE_VIOLATIONS=true # or 'false'
 OUTPUT_FILE=governance-dashboard.html
 
 # Notifications
