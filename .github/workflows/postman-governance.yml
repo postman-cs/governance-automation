@@ -43,6 +43,7 @@ permissions:
 env:
   GOVERNANCE_THRESHOLD: ${{ github.event.inputs.governance_threshold || vars.GOVERNANCE_THRESHOLD || '70' }}
   GOVERNANCE_MODE: ${{ github.event.inputs.governance_mode || vars.GOVERNANCE_MODE || 'specs' }}
+  FAIL_ON_GOVERNANCE_VIOLATIONS: ${{ vars.FAIL_ON_GOVERNANCE_VIOLATIONS || 'true' }}
 
 jobs:
   governance-check:
@@ -132,10 +133,14 @@ jobs:
           passed_count=$((total_count - failed_count))
           echo "passed_count=$passed_count" >> $GITHUB_OUTPUT
           
-          if [ "$failed_count" -gt 0 ]; then
+          if [ "$failed_count" -gt 0 ] && [ "${{ env.FAIL_ON_GOVERNANCE_VIOLATIONS }}" = "true" ]; then
             echo "[FAILED] $failed_count APIs do not meet governance threshold of ${{ env.GOVERNANCE_THRESHOLD }}"
             cat governance-report.json | jq '.[] | select(.status == "FAIL") | "\(.name): \(.score)/100"'
             exit 1
+          elif [ "$failed_count" -gt 0 ]; then
+            echo "[WARNING] $failed_count APIs do not meet governance threshold of ${{ env.GOVERNANCE_THRESHOLD }} (continuing due to FAIL_ON_GOVERNANCE_VIOLATIONS=false)"
+            cat governance-report.json | jq '.[] | select(.status == "FAIL") | "\(.name): \(.score)/100"'
+            echo "Governance violations detected but workflow continuing as configured"
           fi
         env:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
