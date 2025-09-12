@@ -34,9 +34,15 @@ on:
           - 'specs'
           - 'apis'
 
+# Permissions required for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 env:
-  GOVERNANCE_THRESHOLD: ${{ github.event.inputs.governance_threshold || '70' }}
-  GOVERNANCE_MODE: ${{ github.event.inputs.governance_mode || 'specs' }}
+  GOVERNANCE_THRESHOLD: ${{ github.event.inputs.governance_threshold || vars.GOVERNANCE_THRESHOLD || '70' }}
+  GOVERNANCE_MODE: ${{ github.event.inputs.governance_mode || vars.GOVERNANCE_MODE || 'specs' }}
 
 jobs:
   governance-check:
@@ -89,7 +95,7 @@ jobs:
         continue-on-error: true
         env:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-          WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+          WORKSPACE_ID: ${{ vars.WORKSPACE_ID }}
           
       - name: Run Governance Quality Gate
         id: governance-check
@@ -101,13 +107,13 @@ jobs:
             echo "Running governance check on APIs (generating both JSON and HTML)..."
             # Generate both API governance report and dashboard in single run
             node scripts/postman_governance-api.js \
-              --workspace ${{ secrets.WORKSPACE_ID }} \
+              --workspace ${{ vars.WORKSPACE_ID }} \
               --threshold ${{ env.GOVERNANCE_THRESHOLD }}
           else
             echo "Running governance check on specs (generating both JSON and HTML)..."
             # Generate both spec governance report and dashboard in single run
             node scripts/postman_governance-spec.js \
-              --workspace ${{ secrets.WORKSPACE_ID }} \
+              --workspace ${{ vars.WORKSPACE_ID }} \
               --threshold ${{ env.GOVERNANCE_THRESHOLD }}
           fi
           
@@ -154,13 +160,56 @@ jobs:
           name: governance-dashboard
           path: governance-dashboard.html
           retention-days: 30
+
+      # GitHub Pages Deployment (only on main branch)
+      - name: Setup GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/configure-pages@v4
+
+      - name: Prepare Pages Content
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          # Create a pages directory and copy dashboard
+          mkdir -p _pages
+          cp governance-dashboard.html _pages/index.html
+          
+          # Create a simple README for the Pages site
+          cat > _pages/README.md << 'EOF'
+          # API Governance Dashboard
+          
+          This site hosts the latest API governance results from the automated quality checks.
+          
+          - **Dashboard**: [governance-dashboard.html](./governance-dashboard.html) 
+          - **Updated**: $(date)
+          - **Repository**: ${{ github.repository }}
+          
+          ---
+          Generated automatically by [API Governance Check](${{ github.server_url }}/${{ github.repository }}/actions)
+          EOF
+          
+          # Also keep the original filename available
+          cp governance-dashboard.html _pages/governance-dashboard.html
+          
+          echo "Pages content prepared in _pages/ directory"
+          ls -la _pages/
+
+      - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _pages/
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: deployment
+        uses: actions/deploy-pages@v4
           
       - name: Send Teams Notification
         if: always()
         continue-on-error: true
         run: |
-          if [ -n "${{ secrets.TEAMS_WEBHOOK_URL }}" ]; then
-            export TEAMS_WEBHOOK_URL=${{ secrets.TEAMS_WEBHOOK_URL }}
+          if [ -n "${{ vars.TEAMS_WEBHOOK_URL }}" ]; then
+            export TEAMS_WEBHOOK_URL=${{ vars.TEAMS_WEBHOOK_URL }}
             export BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             node scripts/teams_notifier.js --batch governance-report.json
           else
@@ -171,11 +220,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
-          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
-            export SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          if [ -n "${{ vars.SLACK_WORKFLOW_URL }}" ]; then
+            export SLACK_WEBHOOK_URL=${{ vars.SLACK_WORKFLOW_URL }}
             export BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             export BUILD_REQUESTEDFOR="${{ github.actor }}"
-            node scripts/slack_notifier.js --batch governance-report.json --workspace ${{ secrets.WORKSPACE_ID }}
+            node scripts/slack_notifier.js --batch governance-report.json --workspace ${{ vars.WORKSPACE_ID }}
           else
             echo "SLACK_WEBHOOK_URL not configured, skipping Slack notification"
           fi
@@ -184,11 +233,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
-          if [ -n "${{ secrets.SLACK_WORKFLOW_URL }}" ]; then
-            export SLACK_WEBHOOK_URL=${{ secrets.SLACK_WORKFLOW_URL }}
+          if [ -n "${{ vars.SLACK_WORKFLOW_URL }}" ]; then
+            export SLACK_WEBHOOK_URL=${{ vars.SLACK_WORKFLOW_URL }}
             export BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             export BUILD_REQUESTEDFOR="${{ github.actor }}"
-            node scripts/slack_notifier.js --workflow --batch governance-report.json --workspace ${{ secrets.WORKSPACE_ID }}
+            node scripts/slack_notifier.js --workflow --batch governance-report.json --workspace ${{ vars.WORKSPACE_ID }}
           else
             echo "SLACK_WORKFLOW_URL not configured, skipping Slack workflow notification"
           fi
@@ -231,7 +280,9 @@ jobs:
             
             ${failedApis > 0 ? `### Failed APIs:\n${failedApisList}\n` : '### All APIs passed governance checks!'}
             
-            View the full [governance dashboard](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) in the artifacts section for detailed results.
+            View the full governance dashboard:
+            - [Live Dashboard](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) (GitHub Pages)
+            - [Workflow Artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) (downloadable files)
             
             ---
             *Generated by API Governance Check*`;
