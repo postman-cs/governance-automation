@@ -166,11 +166,11 @@ jobs:
 
       # GitHub Pages Deployment (only on main branch)
       - name: Setup GitHub Pages
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/configure-pages@v4
 
       - name: Prepare Pages Content
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           # Create a pages directory and copy dashboard
           mkdir -p _pages
@@ -197,13 +197,13 @@ jobs:
           ls -la _pages/
 
       - name: Upload Pages Artifact
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _pages/
 
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         id: deployment
         uses: actions/deploy-pages@v4
           
