@@ -356,7 +356,7 @@
             }
           },
           "202": {
-            "description": "The server accepted the request and will execute it at a later time.",
+            "description": "The server accepts the request and will execute it at a later time.",
             "content": {
               "application/json": {
                 "schema": {
