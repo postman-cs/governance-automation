@@ -170,15 +170,15 @@ class PostmanSpecSyncer {
 
             // Use the correct Postman API endpoint for updating spec files
             const payload = {
-                content: content.trim(),
-                type: 'ROOT'  // Assuming we're updating the root file
+                content: content.trim()
+                // Note: Only content is allowed, not type or other fields
             };
 
             const result = await retryWithBackoff(async () => {
                 const response = await fetch(
                     `${this.baseUrl}/specs/${specId}/files/${encodeURIComponent(targetFilePath)}`,
                     {
-                        method: 'PUT',
+                        method: 'PATCH',  // Changed from PUT to PATCH
                         headers: {
                             'X-API-Key': this.apiKey,
                             'Content-Type': 'application/json'
