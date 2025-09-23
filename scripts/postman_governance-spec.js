@@ -1819,3 +1819,4 @@ if (require.main === module) {
 }
 
 module.exports = GovernanceScorer;
+module.exports.main = main;

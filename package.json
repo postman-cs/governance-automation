@@ -20,7 +20,6 @@
   "author": "Governance Team",
   "license": "MIT",
   "dependencies": {
-    "@stoplight/spectral-cli": "^6.11.0",
     "dotenv": "^17.2.2",
     "yargs": "^18.0.0"
   },
