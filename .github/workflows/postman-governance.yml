@@ -49,6 +49,7 @@ jobs:
   governance-check:
     name: API Governance Check
     runs-on: ubuntu-22.04
+    timeout-minutes: 8
     
     steps:
       - name: Checkout repository
